@@ -4,25 +4,25 @@ This project is an interactive game built with PIXI.js and GSAP, scaffolded usin
 
 ## Technologies Used
 
-[Vite]: Next Generation Frontend Tooling
-[PIXI.js]: 2D WebGL renderer
-[GSAP] (GreenSock Animation Platform): Professional-grade animation for the modern web
-[TypeScript]: Typed superset of JavaScript
+- [Vite]: Next Generation Frontend Tooling
+- [PIXI.js]: 2D WebGL renderer
+- [GSAP] (GreenSock Animation Platform): Professional-grade animation for the modern web
+- [TypeScript]: Typed superset of JavaScript
 
 ## Setup
 
 ### Clone the repository:
 
-    'git clone [your-repository-url]'
+    git clone https://github.com/ArdentChimera/vault-game.git
 
-    'cd [your-project-name]'
+    cd vault-game
 
 ### Install dependencies:
 
-    'npm install'
+    npm install
 
 ### Run the development server:
 
-    'npm run dev'
+    npm run dev
 
-Open your browser and navigate to [http://localhost:5173] (or the port Vite is running on)
+Open your browser and navigate to http://localhost:5173 (or the port Vite is running on)
