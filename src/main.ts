@@ -44,6 +44,12 @@ async function init() {
 
 	app.stage.addChild(door)
 
+	const doorOpenTexture = await Assets.load("../assets/doorOpen.png")
+	const doorOpen = Sprite.from(doorOpenTexture)
+
+	doorOpen.scale.set(0.28)
+	doorOpen.anchor.set(0.5)
+
 	const handleTexture = await Assets.load("../assets/handle.png")
 	const handle = Sprite.from(handleTexture)
 
@@ -53,9 +59,11 @@ async function init() {
 	app.stage.addChild(handle)
 
 	function setPositions() {
-		// Position the door (keep your original positioning)
 		door.x = app.screen.width / 1.97
 		door.y = app.screen.height / 2.06
+
+		doorOpen.x = app.screen.width / 1.2
+		doorOpen.y = app.screen.height / 2.06
 
 		// Calculate the handle position relative to the door
 		const handleOffsetX = door.width * -0.04 // Adjust this value as needed
@@ -151,13 +159,84 @@ async function init() {
 	}
 
 	// Optional: Function to handle game logic based on rotation state
-	function handleGameLogic(angle: number, direction: number, count: number) {
+	async function handleGameLogic(
+		angle: number,
+		direction: number,
+		count: number
+	) {
 		console.log(
 			`Rotation: ${angle}, Direction: ${
 				direction === 1 ? "Clockwise" : "Counterclockwise"
 			}, Count: ${count}`
 		)
 		// Implement your game logic here
+
+		if (count === 2) {
+			gsap.to(door, {
+				duration: 1,
+				scale: 0.1,
+				y: 60,
+				yoyo: true,
+				repeat: 1,
+				ease: "power1.inOut",
+			})
+
+			gsap.to(handle, {
+				duration: 1,
+				scale: 0.1,
+				y: 60,
+				yoyo: true,
+				repeat: 1,
+				ease: "power1.inOut",
+			})
+
+			app.stage.addChild(doorOpen)
+
+			const blinkTexture = await Assets.load("../assets/blink.png")
+
+			const blinkPositions = [
+				{ x: app.screen.width / 2.6, y: app.screen.height / 1.98 },
+				{ x: app.screen.width / 1.87, y: app.screen.height / 1.61 },
+				{ x: app.screen.width / 2.1, y: app.screen.height / 2.02 },
+			]
+
+			const blinks: any = []
+
+			blinkPositions.forEach((position, index) => {
+				const blink = Sprite.from(blinkTexture)
+				blink.scale.set(0.28)
+				blink.anchor.set(0.5)
+				blink.x = position.x
+				blink.y = position.y
+				app.stage.addChild(blink)
+
+				const blink2 = Sprite.from(blinkTexture)
+				blink2.scale.set(0.28)
+				blink2.anchor.set(0.5)
+				blink2.x = position.x
+				blink2.y = position.y
+				app.stage.addChild(blink2)
+
+				const blink3 = Sprite.from(blinkTexture)
+				blink3.scale.set(0.28)
+				blink3.anchor.set(0.5)
+				blink3.x = position.x
+				blink3.y = position.y
+				app.stage.addChild(blink3)
+
+				blinks[index] = blink
+			})
+
+			blinks.forEach((blink: object) => {
+				gsap.to(blink, {
+					rotation: 360,
+					duration: 500,
+					repeat: 0,
+					repeatDelay: 0,
+					ease: "none",
+				})
+			})
+		}
 	}
 }
 
