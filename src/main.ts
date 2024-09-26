@@ -143,7 +143,7 @@ async function init() {
 			onComplete: () => {
 				currentAngle = newAngle
 				// Optional: Trigger game logic here
-				handleGameLogic(currentAngle, rotationDirection, rotationCount)
+				handleDoorMovement(currentAngle, rotationDirection, rotationCount)
 			},
 		})
 
@@ -158,8 +158,148 @@ async function init() {
 		})
 	}
 
+	let isDoorOpen: boolean = false
+	let doorOpenTime: number = 0
+
+	const openDoor = () => {
+		isDoorOpen = true
+		doorOpenTime = Date.now()
+		console.log(doorOpenTime)
+
+		// Door opening animation
+		gsap.to(door, {
+			duration: 1,
+			scale: 0.1,
+			y: 60,
+			yoyo: true,
+			repeat: 1,
+			ease: "power1.inOut",
+		})
+
+		gsap.to(handle, {
+			duration: 1,
+			scale: 0.1,
+			y: 60,
+			yoyo: true,
+			repeat: 1,
+			ease: "power1.inOut",
+		})
+
+		app.stage.addChild(doorOpen)
+		door.visible = false
+
+		// Start handle spinning (4 times in 5 seconds)
+		gsap.to(handle, {
+			rotation: 360 * 4, // Spin 4 times (360 degrees * 4)
+			duration: 5, // Over 5 seconds
+			ease: "none",
+		})
+
+		createBlinks()
+	}
+
+	const closeDoor = () => {
+		isDoorOpen = false
+		app.stage.removeChild(doorOpen)
+		// Ensure the closed door and handle are added to the stage at the same time
+		door.visible = true
+		handle.visible = false
+
+		// Set the position and scale of the door and handle
+		door.scale.set(0.27)
+		door.x = app.screen.width / 1.97
+		door.y = app.screen.height / 2.06
+
+		handle.scale.set(0.27)
+		handle.x = door.x + door.width * -0.04
+		handle.y = door.y
+
+		// Ensure both door and handle are added at the same time to the stage
+		app.stage.addChild(door)
+		app.stage.addChild(handle)
+
+		// Simultaneous animation for the door
+		gsap.to(door, {
+			duration: 0.2, // Set duration to match the handle's rotation
+			scale: 0.27,
+			ease: "power1.inOut",
+			onComplete: () => {
+				// Make the handle visible after the door animation is complete
+				handle.visible = true
+
+				// Spin the handle 4 times after the door closes
+				gsap.to(handle, {
+					rotation: 360 * 2,
+					duration: 2,
+					repeat: 0,
+					repeatDelay: 0,
+					ease: "none",
+					onComplete: () => {
+						// Reset the handle's rotation after spinning
+						gsap.to(handle, {
+							rotation: 0,
+							duration: 0.5,
+							onComplete: () => {
+								currentAngle = 0
+								rotationCount = 0
+								lastDirection = 0
+							},
+						})
+					},
+				})
+			},
+		})
+	}
+
+	const createBlinks = async () => {
+		const blinkTexture = await Assets.load("../assets/blink.png")
+
+		const blinkPositions = [
+			{ x: app.screen.width / 2.6, y: app.screen.height / 1.98 },
+			{ x: app.screen.width / 1.87, y: app.screen.height / 1.61 },
+			{ x: app.screen.width / 2.1, y: app.screen.height / 2.02 },
+		]
+
+		const blinks: any = []
+
+		blinkPositions.forEach((position, index) => {
+			const blink = Sprite.from(blinkTexture)
+			blink.scale.set(0.28)
+			blink.anchor.set(0.5)
+			blink.x = position.x
+			blink.y = position.y
+			app.stage.addChild(blink)
+
+			const blink2 = Sprite.from(blinkTexture)
+			blink2.scale.set(0.28)
+			blink2.anchor.set(0.5)
+			blink2.x = position.x
+			blink2.y = position.y
+			app.stage.addChild(blink2)
+
+			const blink3 = Sprite.from(blinkTexture)
+			blink3.scale.set(0.28)
+			blink3.anchor.set(0.5)
+			blink3.x = position.x
+			blink3.y = position.y
+			app.stage.addChild(blink3)
+
+			blinks[index] = blink
+		})
+
+		blinks.forEach((blink: object) => {
+			gsap.to(blink, {
+				rotation: 360,
+				duration: 500,
+				repeat: 0,
+				repeatDelay: 0,
+				ease: "none",
+			})
+		})
+	}
+
 	// Optional: Function to handle game logic based on rotation state
-	async function handleGameLogic(
+	async function handleDoorMovement(
 		angle: number,
 		direction: number,
 		count: number
@@ -172,70 +312,13 @@ async function init() {
 		// Implement your game logic here
 
 		if (count === 2) {
-			gsap.to(door, {
-				duration: 1,
-				scale: 0.1,
-				y: 60,
-				yoyo: true,
-				repeat: 1,
-				ease: "power1.inOut",
-			})
+			openDoor()
 
-			gsap.to(handle, {
-				duration: 1,
-				scale: 0.1,
-				y: 60,
-				yoyo: true,
-				repeat: 1,
-				ease: "power1.inOut",
-			})
-
-			app.stage.addChild(doorOpen)
-
-			const blinkTexture = await Assets.load("../assets/blink.png")
-
-			const blinkPositions = [
-				{ x: app.screen.width / 2.6, y: app.screen.height / 1.98 },
-				{ x: app.screen.width / 1.87, y: app.screen.height / 1.61 },
-				{ x: app.screen.width / 2.1, y: app.screen.height / 2.02 },
-			]
-
-			const blinks: any = []
-
-			blinkPositions.forEach((position, index) => {
-				const blink = Sprite.from(blinkTexture)
-				blink.scale.set(0.28)
-				blink.anchor.set(0.5)
-				blink.x = position.x
-				blink.y = position.y
-				app.stage.addChild(blink)
-
-				const blink2 = Sprite.from(blinkTexture)
-				blink2.scale.set(0.28)
-				blink2.anchor.set(0.5)
-				blink2.x = position.x
-				blink2.y = position.y
-				app.stage.addChild(blink2)
-
-				const blink3 = Sprite.from(blinkTexture)
-				blink3.scale.set(0.28)
-				blink3.anchor.set(0.5)
-				blink3.x = position.x
-				blink3.y = position.y
-				app.stage.addChild(blink3)
-
-				blinks[index] = blink
-			})
-
-			blinks.forEach((blink: object) => {
-				gsap.to(blink, {
-					rotation: 360,
-					duration: 500,
-					repeat: 0,
-					repeatDelay: 0,
-					ease: "none",
-				})
-			})
+			setTimeout(() => {
+				if (isDoorOpen) {
+					closeDoor()
+				}
+			}, 5000)
 		}
 	}
 }
