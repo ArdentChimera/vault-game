@@ -8,12 +8,10 @@ gsap.registerPlugin(PixiPlugin)
 const app = new Application()
 
 async function init() {
-	// Initialize the application
 	await app.init({ background: "#1099bb", resizeTo: window })
 
 	document.body.appendChild(app.canvas)
 
-	// Define the manifest
 	const manifest = {
 		bundles: [
 			{
@@ -39,7 +37,7 @@ async function init() {
 	const doorTexture = await Assets.load("../assets/door.png")
 	const door = Sprite.from(doorTexture)
 
-	door.scale.set(0.28)
+	door.scale.set(1.1)
 	door.anchor.set(0.5)
 
 	app.stage.addChild(door)
@@ -47,15 +45,30 @@ async function init() {
 	const doorOpenTexture = await Assets.load("../assets/doorOpen.png")
 	const doorOpen = Sprite.from(doorOpenTexture)
 
-	doorOpen.scale.set(0.28)
+	doorOpen.scale.set(1.1)
 	doorOpen.anchor.set(0.5)
+
+	const doorOpenShadowTexture = await Assets.load(
+		"../assets/doorOpenShadow.png"
+	)
+	const doorOpenShadow = Sprite.from(doorOpenShadowTexture)
+
+	doorOpenShadow.scale.set(1.15)
+	doorOpenShadow.anchor.set(0.5)
 
 	const handleTexture = await Assets.load("../assets/handle.png")
 	const handle = Sprite.from(handleTexture)
 
-	handle.scale.set(0.27)
+	handle.scale.set(1)
 	handle.anchor.set(0.5)
 
+	const handleShadowTexture = await Assets.load("../assets/handleShadow.png")
+	const handleShadow = Sprite.from(handleShadowTexture)
+
+	handleShadow.scale.set(1)
+	handleShadow.anchor.set(0.5)
+
+	app.stage.addChild(handleShadow)
 	app.stage.addChild(handle)
 
 	function setPositions() {
@@ -65,6 +78,9 @@ async function init() {
 		doorOpen.x = app.screen.width / 1.2
 		doorOpen.y = app.screen.height / 2.06
 
+		doorOpenShadow.x = app.screen.width / 1.17
+		doorOpenShadow.y = app.screen.height / 1.96
+
 		// Calculate the handle position relative to the door
 		const handleOffsetX = door.width * -0.04 // Adjust this value as needed
 		const handleOffsetY = 0 // Adjust if you need vertical offset
@@ -72,6 +88,9 @@ async function init() {
 		// Position the handle relative to the door
 		handle.x = door.x + handleOffsetX
 		handle.y = door.y + handleOffsetY
+
+		handleShadow.x = door.x
+		handleShadow.y = door.y
 	}
 
 	// Responsive resize function for background
@@ -147,6 +166,15 @@ async function init() {
 			},
 		})
 
+		gsap.to(handleShadow, {
+			rotation: newAngle,
+			duration: 0.5,
+			ease: "power2.inOut",
+			onComplete: () => {
+				currentAngle = newAngle
+			},
+		})
+
 		// Optional: Add a slight movement to simulate turning
 		gsap.to(handle, {
 			x: handle.x + 2 * rotationDirection,
@@ -185,7 +213,18 @@ async function init() {
 			ease: "power1.inOut",
 		})
 
+		gsap.to(handleShadow, {
+			duration: 1,
+			scale: 0.1,
+			y: 60,
+			yoyo: true,
+			repeat: 1,
+			ease: "power1.inOut",
+		})
+
+		app.stage.addChild(doorOpenShadow)
 		app.stage.addChild(doorOpen)
+
 		door.visible = false
 
 		// Start handle spinning (4 times in 5 seconds)
@@ -200,35 +239,34 @@ async function init() {
 
 	const closeDoor = () => {
 		isDoorOpen = false
+		app.stage.removeChild(doorOpenShadow)
 		app.stage.removeChild(doorOpen)
 		// Ensure the closed door and handle are added to the stage at the same time
 		door.visible = true
 		handle.visible = false
+		handleShadow.visible = false
 
-		// Set the position and scale of the door and handle
-		door.scale.set(0.27)
-		door.x = app.screen.width / 1.97
-		door.y = app.screen.height / 2.06
+		handle.scale.set(1)
+		handle.x = app.screen.width / 2.04
 
-		handle.scale.set(0.27)
-		handle.x = door.x + door.width * -0.04
-		handle.y = door.y
-
+		handleShadow.scale.set(1)
 		// Ensure both door and handle are added at the same time to the stage
 		app.stage.addChild(door)
+		app.stage.addChild(handleShadow)
 		app.stage.addChild(handle)
 
 		// Simultaneous animation for the door
 		gsap.to(door, {
 			duration: 0.2, // Set duration to match the handle's rotation
-			scale: 0.27,
+			scale: 1.1,
 			ease: "power1.inOut",
 			onComplete: () => {
 				// Make the handle visible after the door animation is complete
 				handle.visible = true
+				handleShadow.visible = true
 
 				// Spin the handle 4 times after the door closes
-				gsap.to(handle, {
+				gsap.to([handle, handleShadow], {
 					rotation: 360 * 2,
 					duration: 2,
 					repeat: 0,
@@ -236,7 +274,7 @@ async function init() {
 					ease: "none",
 					onComplete: () => {
 						// Reset the handle's rotation after spinning
-						gsap.to(handle, {
+						gsap.to([handle, handleShadow], {
 							rotation: 0,
 							duration: 0.5,
 							onComplete: () => {
@@ -264,21 +302,21 @@ async function init() {
 
 		blinkPositions.forEach((position, index) => {
 			const blink = Sprite.from(blinkTexture)
-			blink.scale.set(0.28)
+			blink.scale.set(0.9)
 			blink.anchor.set(0.5)
 			blink.x = position.x
 			blink.y = position.y
 			app.stage.addChild(blink)
 
 			const blink2 = Sprite.from(blinkTexture)
-			blink2.scale.set(0.28)
+			blink2.scale.set(0.9)
 			blink2.anchor.set(0.5)
 			blink2.x = position.x
 			blink2.y = position.y
 			app.stage.addChild(blink2)
 
 			const blink3 = Sprite.from(blinkTexture)
-			blink3.scale.set(0.28)
+			blink3.scale.set(0.9)
 			blink3.anchor.set(0.5)
 			blink3.x = position.x
 			blink3.y = position.y
@@ -318,7 +356,7 @@ async function init() {
 				if (isDoorOpen) {
 					closeDoor()
 				}
-			}, 5000)
+			}, 8000)
 		}
 	}
 }
