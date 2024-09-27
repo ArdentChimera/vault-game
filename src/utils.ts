@@ -49,7 +49,6 @@ export function resizeGame(
 		app.screen.height / BASE_HEIGHT
 	)
 
-	// Resize background
 	const bgScaleX = app.screen.width / background.texture.width
 	const bgScaleY = app.screen.height / background.texture.height
 	const bgScale = Math.min(bgScaleX, bgScaleY)
@@ -59,7 +58,6 @@ export function resizeGame(
 		(app.screen.height - background.height) / 2
 	)
 
-	// Reposition game elements
 	setPositions(app, door, doorOpen, doorOpenShadow, handle, handleShadow)
 }
 

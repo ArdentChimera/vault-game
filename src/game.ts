@@ -19,7 +19,6 @@ let isDoorOpen = false
 let rotationCount = 0
 let lastDirection = 0
 
-// Declare these at a higher scope so they can be accessed by handleDoorMovement
 let door: Sprite | null = null
 let handle: Sprite
 let handleShadow: Sprite
@@ -55,8 +54,6 @@ export async function setupGame(application: Application) {
 	)
 	handle = Sprite.from(await Assets.load("../assets/handle.png"))
 	handleShadow = Sprite.from(await Assets.load("../assets/handleShadow.png"))
-
-	// Set up sprites
 	;[door, doorOpen, doorOpenShadow, handle, handleShadow].forEach(sprite => {
 		if (sprite) {
 			sprite.anchor.set(0.5)
@@ -65,14 +62,11 @@ export async function setupGame(application: Application) {
 
 	app.stage.addChild(door!, handleShadow!, handle!)
 
-	// Create blink container
 	blinkContainer = new Container()
 	app.stage.addChild(blinkContainer)
 
-	// Create and add timer display
 	createTimerDisplay()
 
-	// Initial resize and setup resize listener
 	handleResize()
 	window.addEventListener("resize", handleResize)
 
@@ -84,7 +78,6 @@ export async function setupGame(application: Application) {
 		)
 	}
 
-	// Generate combination and start countdown
 	generateCombination()
 	console.log(`Your secret combination is: ${combinationToString(combination)}`)
 
@@ -156,7 +149,6 @@ function handleResize() {
 }
 
 function scaleGameElements(scaleFactor: number) {
-	// Define base scales for each element
 	const scales = {
 		door: 0.32,
 		doorOpen: 0.32,
@@ -165,7 +157,6 @@ function scaleGameElements(scaleFactor: number) {
 		handleShadow: 0.3,
 	}
 
-	// Scale elements
 	if (door) door.scale.set(scales.door * scaleFactor)
 	if (doorOpen) doorOpen.scale.set(scales.doorOpen * scaleFactor)
 	if (doorOpenShadow)
@@ -173,7 +164,6 @@ function scaleGameElements(scaleFactor: number) {
 	if (handle) handle.scale.set(scales.handle * scaleFactor)
 	if (handleShadow) handleShadow.scale.set(scales.handleShadow * scaleFactor)
 
-	// Scale timer
 	if (timerContainer) {
 		timerContainer.scale.set(1.5 * scaleFactor)
 	}
@@ -213,7 +203,6 @@ function onHandleClick(
 	currentRotations++
 	animateHandle(rotationDirection, handle, handleShadow)
 
-	// Check if we've reached the target number of rotations for the current pair
 	if (currentRotations === combination[userInput.length][0]) {
 		userInput.push([
 			currentRotations,
@@ -222,7 +211,6 @@ function onHandleClick(
 
 		currentRotations = 0
 
-		// Check if we've completed all three pairs
 		if (userInput.length === 3) {
 			handleDoorMovement()
 		}
@@ -509,5 +497,3 @@ function resetGameState() {
 	updateTimerDisplay()
 	disableHandleInteraction()
 }
-
-// TODO: ADJUST THE BLINK POSITION AND UPLOAD THE CODE
